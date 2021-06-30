@@ -31,7 +31,7 @@ jobs:
 
     # Runs a single command using the runners shell
     - name: Run Computation
-      uses: ./_action-update
+      uses: ./_run-computation
       env:
         BRANCH_NAME: master
         BOT_USER: faical-yannick-congo
