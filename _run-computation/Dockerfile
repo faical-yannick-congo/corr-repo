@@ -1,19 +1,22 @@
-## UniMarket REST API micro-service.
-ARG tag
-FROM unipay.azurecr.io/un1pay-generic-api:$tag
+FROM debian:stable-slim
 
-USER un1pay
-WORKDIR /home/un1pay
+LABEL "com.github.actions.name"="Trigger Comutation"
+LABEL "com.github.actions.description"="Run the current computation."
+LABEL "com.github.actions.icon"="refresh-cw"
+LABEL "com.github.actions.color"="orange"
 
-COPY requirements.yml /home/un1pay/identity-requirements.yml
-COPY startup.sh /home/un1pay/app-startup.sh
+LABEL "repository"="https://github.com/faical-yannick-congo/corr-repo"
+LABEL "homepage"="https://aical-yannick-congo.github.io/corr-repo"
 
-RUN /home/un1pay/anaconda/bin/conda env update -n un1pay --file /home/un1pay/identity-requirements.yml
+RUN apt-get update && apt-get install \
+    -y --no-install-recommends curl git python3 python3-virtualenv
 
-## Executing the services.
-CMD bash /home/un1pay/app-startup.sh
+COPY hub-linux-amd64-2.12.4.tgz /hub-linux-amd64-2.12.4.tgz
+RUN tar -zxf /hub-linux-amd64-2.12.4.tgz -C / && rm /hub-linux-amd64-2.12.4.tgz
+RUN /hub-linux-amd64-2.12.4/install
 
-# export tag='dev'
-# echo $tag
-# docker build --build-arg tag=$tag -t un1pay-identity:$tag .
-#
+RUN python3 -m virtualenv --python=/usr/bin/python3 /opt/venv
+RUN . /opt/venv/bin/activate && pip install --upgrade pip setuptools wheel
+
+ADD entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
